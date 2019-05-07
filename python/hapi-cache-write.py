@@ -37,6 +37,7 @@ Set as shell environment variable:
 import os
 import re
 import sys
+import gzip
 import optparse
 import tempfile
 from json import loads as jsonparse
@@ -82,9 +83,9 @@ if options.file is not None:
 
 flog = open(options.log,'w')
 
-nostdout = False
+stdout = True
 if options.nostdout:
-	nostdout = True
+	stdout = False
 
 def prod(arr):
 	p = 1
@@ -144,15 +145,30 @@ def firstline(linea):
 	return daylast
 
 if options.file is not None:
-	f = open(options.file,'r')
+	f = open(options.file, 'rb')
 elif options.url is not None:
 	f = urlopen(options.url)
 else:
-	f = sys.stdin
+	f = sys.stdin.buffer
+
+	# Look at first two bytes to determine if they correspond to the gzip signature.
+	first2bytes = f.peek(2)
+
+	# https://docs.python.org/3/library/io.html#io.BufferedReader.peek
+	# "The number of bytes returned may be less or more than requested."
+	# TODO: Error if less than two bytes
+	assert len(first2bytes) > 1, "f.peek(2) did not return enough bytes to determine if stdin is gzipped. This situation is not handled."
+
+	isgzip = False
+	if first2bytes[:2] == b'\x1f\x8b':
+		isgzip = True
+
+	if isgzip:
+		f = gzip.GzipFile(fileobj=sys.stdin.buffer)
 
 line = ""
 if options.info is not None:
-	# Headerless data response
+	# Must be given if headerless data response
 	if options.info[0:4] == "http":
 		# Info given as URL
 		fi = urlopen(options.info)
@@ -164,13 +180,12 @@ if options.info is not None:
 	json = jsonparse(lines)
 else:
 	# Header in input data
+	flog.write("Expecting header in input data because --info URL or --info FILE not given\n")
 	lines = "";
 	for line in f:
-		if options.url is not None:
-			line = line.decode('utf8')
-		if not nostdout:
+		line = line.decode('utf8')
+		if stdout:
 			sys.stdout.write(line)
-		#flog.write(line.rstrip() + "\n")
 		if line[0] is not "#":
 			break
 		else:
@@ -199,6 +214,7 @@ if line == "":
 	l = 0
 else:
 	# Header was in stdin, file, or data response
+	flog.write("Header was in input.\n")
 	collecting = False
 	l = 1
 	linea = line.split(sep=",")
@@ -211,19 +227,15 @@ else:
 for line in f:
 
 	l = l + 1
-	if options.url is not None:
-		# TODO: Can utf8 this be passed to urlopen()?
-		# Is this needed for only Python 2 urlopen?
-		line = line.decode('utf8')
+	flog.write(str(l) + " " + line.decode())
+	line = line.decode('utf8')
 
-	#flog.write(line.rstrip() + "\n")
-	if not nostdout:
+	if stdout:
 		sys.stdout.write(line)
 
 	linea = line.split(sep=",")
 
 	day = linea[0].replace("-", "")
-
 	if l == 1:
 		daylast = firstline(linea)
 
