@@ -4,6 +4,7 @@ COMMAND=python hapi-cache-write.py
 all:
 	make clean
 	-@ pkill -f "python -m http.server 5555"
+	make hapi_util
 	make test-File-1a
 	make test-File-1b
 	make test-File-1c
@@ -23,6 +24,9 @@ clean:
 	rm -rf /tmp/hapi-cache
 	rm -f log/*
 
+hapi_util:
+	python hapi_util.py
+	
 # First day does not start at 00:00:00.000000000 or equivalent.
 # Only one daily file written.
 test-File-1a:
