@@ -16,6 +16,7 @@ all:
 	make test-GzStdin-1a
 	make test-GzStdin-1b
 	make test-GzFile-1a
+	make test-File-GzStdout-1a	
 	@ echo ""
 	@ echo "All tests passed."
 	@ echo ""
@@ -26,7 +27,7 @@ clean:
 
 hapi_util:
 	python hapi_util.py
-	
+
 # First day does not start at 00:00:00.000000000 or equivalent.
 # Only one daily file written.
 test-File-1a:
@@ -52,6 +53,7 @@ test-GzFile-1a:
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
+
 # Same as test-File-1a except first line starts at 00:00:00.000000000 or equivalent
 # Two daily files written.
 test-File-1b:
@@ -61,6 +63,19 @@ test-File-1b:
 		--file input/hapi-cache-$@.txt \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
+		> /tmp/hapi-cache/$@/stdout
+	cat log/hapi-cache-$@.log
+	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
+
+# Same as test-File-1b except gzip files written
+test-File-GzStdout-1a:
+	@ mkdir -p /tmp/hapi-cache/$@
+	$(COMMAND) \
+		--info input/hapi-cache-$@.json \
+		--file input/hapi-cache-$@.txt \
+		--log log/hapi-cache-$@.log \
+		--dir /tmp/hapi-cache/$@ \
+		--gzip
 		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@

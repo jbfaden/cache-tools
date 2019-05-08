@@ -60,6 +60,7 @@ parser.add_option('--info', help='URL or file for info response associated with 
 parser.add_option('--file', default=None, help='File containing HAPI data')
 parser.add_option('--url', default=None, help='URL with response of HAPI data')
 parser.add_option('--format', default='csv', help='Format of input')
+parser.add_option('--gzip', dest='gzip', action='store_true', help='Gzip output files')
 parser.add_option('--log', default='hapi-cache.log', help='Format of input')
 parser.add_option('--nostdout', dest='nostdout', action='store_true', help='Do not pass stdin to stdout')
 
@@ -103,19 +104,17 @@ def dump(linea, date, columns):
 
 	date = date.replace("-","")
 	for parameter in columns:
-		fname = date[0:8] + "." + parameter
-		if options.format is "csv":
-			fname = fname + ".csv"
-			fname = os.path.join(subdir, fname)
-			fout = open(fname, 'wt')
-		if options.format is "binary":
-			fname = fname + ".binary"
-			fname = os.path.join(subdir, fname)
+		fname = date[0:8] + "." + parameter + "." + options.format
+		fname = os.path.join(subdir, fname)
+		if options.gzip:
+			fname = fname + ".gz"
+			fout = gzip.GzipFile(fname, 'wb', compresslevel=0)
+		else:
 			fout = open(fname, 'wb')
 
 		for i in range(len(linea)):
 			cols = list(columns[parameter])
-			fout.write(",".join([ linea[i][j] for j in cols ]).rstrip() + "\n")
+			fout.write(bytes(",".join([ linea[i][j] for j in cols ]).rstrip() + "\n", encoding='utf8'))
 		
 		flog.write("Wrote %d lines to %s\n" % (len(linea),fname))
 		fout.close()

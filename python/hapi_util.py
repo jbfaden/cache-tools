@@ -2,7 +2,7 @@ def standardISO8601(isostr):
     """Convert HAPI ISO8601 time strings to $Y-$m-$dT$H:$M:$S.$(subsec,places=9)Z format
 
     Usage
-    --------
+    -----
     standardISO8601(str), where str is a restricted ISO 8601 string [1]
     returns a string of the form $Y-$m-$dT$H:$M:$S.$(subsec,places=9)Z
 
