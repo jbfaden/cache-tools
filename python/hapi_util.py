@@ -1,8 +1,31 @@
-
 def standardISO8601(isostr):
-    """Convert HAPI yyyy-doy strings to yyyy-mm-dd strings, if necessary.
+    """Convert HAPI ISO8601 time strings to $Y-$m-$dT$H:$M:$S.$(subsec,places=9)Z format
 
-    The result will be $Y-$m-$dT$H:$M:$S.$(subsec,places=9)Z
+    Usage
+    --------
+    standardISO8601(str), where str is a restricted ISO 8601 string [1]
+    returns a string of the form $Y-$m-$dT$H:$M:$S.$(subsec,places=9)Z
+
+    Examples
+    --------
+        >>> standardISO8601('2009')
+        '2009-01-01T00:00:00.000000000Z'
+
+        >>> standardISO8601('2009-01-01T01:00Z')
+        '2009-01-01T01:00:00.000000000Z'
+
+        >>> standardISO8601('2009-001T01:00Z')
+        '2009-01-01T01:00:00.000000000Z'
+
+        >>> standardISO8601('2009-150T01:00Z')
+        '2009-05-30T01:00:00.000000000Z'
+
+        >>> standardISO8601('2000-150T01:00Z')
+        '2000-05-29T01:00:00.000000000Z'
+
+    Reference
+    ---------
+    [1] `<https://github.com/hapi-server/data-specification/blob/master/hapi-dev/HAPI-data-access-spec-dev.md#representation-of-time>`_
     """
 
     l = len(isostr)
