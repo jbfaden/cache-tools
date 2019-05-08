@@ -145,7 +145,10 @@ def firstline(linea):
 	return daylast
 
 if options.file is not None:
-	f = open(options.file, 'rb')
+	if len(options.file) > 3 and options.file[-3:] == '.gz':
+		f = gzip.GzipFile(options.file, 'rb')
+	else:
+		f = open(options.file, 'rb')
 elif options.url is not None:
 	f = urlopen(options.url)
 else:
@@ -175,8 +178,12 @@ if options.info is not None:
 		lines = fi.read().decode('utf8')
 	else:
 		# Info given as file
-		with open(options.info, 'r', encoding='utf8') as fi:
-			lines = fi.read()
+		if len(options.info) > 3 and options.info[-3:] == '.gz':
+			with gzip.GzipFile(options.info, 'rb') as fi:
+				lines = fi.read()
+		else:
+			with open(options.info, 'r', encoding='utf8') as fi:
+				lines = fi.read()
 	json = jsonparse(lines)
 else:
 	# Header in input data
@@ -227,7 +234,7 @@ else:
 for line in f:
 
 	l = l + 1
-	flog.write(str(l) + " " + line.decode())
+	#flog.write(str(l) + " " + line.decode())
 	line = line.decode('utf8')
 
 	if stdout:
