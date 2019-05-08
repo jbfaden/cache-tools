@@ -6,12 +6,15 @@ all:
 	-@ pkill -f "python -m http.server 5555"
 	make test-File-1a
 	make test-File-1b
+	make test-File-1c
+	make test-File-1d
 	make test-URL-1a
 	make test-URL-1b
 	make test-Stdin-1a
 	make test-Stdin-1b
 	make test-GzStdin-1a
 	make test-GzStdin-1b
+	make test-GzFile-1a
 	@ echo ""
 	@ echo "All tests passed."
 	@ echo ""
@@ -29,7 +32,19 @@ test-File-1a:
 		--file input/hapi-cache-$@.txt \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
+	cat log/hapi-cache-$@.log
+	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
+
+# Same as test-File-1a except --info and --file files gzipped.
+test-GzFile-1a:
+	@ mkdir -p /tmp/hapi-cache/$@
+	$(COMMAND) \
+		--info input/hapi-cache-$@.json \
+		--file input/hapi-cache-$@.txt.gz \
+		--log log/hapi-cache-$@.log \
+		--dir /tmp/hapi-cache/$@ \
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
@@ -42,7 +57,7 @@ test-File-1b:
 		--file input/hapi-cache-$@.txt \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
@@ -53,17 +68,18 @@ test-File-1c:
 		--file input/hapi-cache-$@.txt \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
+# Same as test-File-1b except input file contains header and data
 test-File-1d:
 	@ mkdir -p /tmp/hapi-cache/$@
 	$(COMMAND) \
 		--file input/hapi-cache-$@.txt \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
@@ -77,7 +93,7 @@ test-URL-1a:
 		--url http://localhost:5555/input/hapi-cache-$@.txt \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 	pkill -f "python -m http.server 5555"
@@ -90,7 +106,7 @@ test-URL-1b:
 		--url http://localhost:5555/input/hapi-cache-$@.txt \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 	pkill -f "python -m http.server 5555"
@@ -103,7 +119,7 @@ test-Stdin-1a:
 		--info input/hapi-cache-$@.json \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
@@ -113,7 +129,7 @@ test-Stdin-1b:
 	cat input/hapi-cache-$@.txt | $(COMMAND) \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
@@ -124,7 +140,7 @@ test-GzStdin-1a:
 		--info input/hapi-cache-$@.json \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
@@ -133,7 +149,7 @@ test-GzStdin-1b:
 	cat input/hapi-cache-$@.txt | gzip | $(COMMAND) \
 		--log log/hapi-cache-$@.log \
 		--dir /tmp/hapi-cache/$@ \
-		> /tmp/hapi-cache/$@/hapi-cache-$@.stdout
+		> /tmp/hapi-cache/$@/stdout
 	cat log/hapi-cache-$@.log
 	diff -r hapi-cache/$@ /tmp/hapi-cache/$@
 
