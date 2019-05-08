@@ -9,8 +9,7 @@ The tests can be modified to use a different cache writing program by modifying 
 # TODO
 
 * Add test to ensure empty file is written when a day of data or more is missing
-* Add support for binary
-* Add ability to write gzip files
+* Add support for HAPI binary
 
 # Contact
 
