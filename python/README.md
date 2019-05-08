@@ -10,7 +10,7 @@ The tests can be modified to use a different cache writing program by modifying 
 
 * Add test to ensure empty file is written when a day of data or more is missing
 * Add support for binary
-* Add support for gzip stdin and file and ability to write gzip files
+* Add ability to write gzip files
 
 # Contact
 
