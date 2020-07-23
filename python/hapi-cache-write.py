@@ -14,22 +14,22 @@ HAPI info response is or is not included as a part of input
 Included:
   URLbase='http://hapi-server.org/servers/TestData/hapi
   URLargs='/data?id=dataset1&parameters=scalar,vector&time.min=1970-01-01Z&time.max=1970-01-02'
-  curl $URLbase$URLargs'&include=header' | python hapi-cache.py
+  curl $URLbase$URLargs'&include=header' | python hapi-cache-write.py
 
 Not included:
   URLinfo=$URLbase'/info?id=dataset1&parameters=scalar,vector'
-  curl $URLbase$URLargs | python hapi-cache.py --info $URLinfo
+  curl $URLbase$URLargs | python hapi-cache-write.py --info $URLinfo
 -----------------------------------------
 
 -----------------------------------------
 HAPI_DATA can be set on command line or set as shell environment variable
 
 Set on command line:
-  curl $URLbase$URLargs'&include=header' | python hapi-cache.py --HAPI_DATA /tmp
+  curl $URLbase$URLargs'&include=header' | python hapi-cache-write.py --HAPI_DATA /tmp
 
 Set as shell environment variable:
   HAPI_DATA=/tmp
-  curl $URLbase$URLargs'&include=header' | python hapi-cache.py    
+  curl $URLbase$URLargs'&include=header' | python hapi-cache-write.py    
 
 -----------------------------------------
 """
@@ -52,7 +52,7 @@ else:
 # https://stackoverflow.com/questions/48725405/how-to-read-binary-data-over-a-pipe-from-another-process-in-python
 # https://stackoverflow.com/questions/2850893/reading-binary-data-from-stdin
 
-parser = optparse.OptionParser(usage='python hapi-cache.py [options]', add_help_option=False)
+parser = optparse.OptionParser(usage='python hapi-cache-write.py [options]', add_help_option=False)
 
 parser.add_option('-h', '--help', dest='help', action='store_true', help='Show this help message and exit')
 parser.add_option('--dir', default=os.path.join(tempfile.gettempdir(),'hapi-data'), help='Cache directory will be DIR/hapi-data')
@@ -61,7 +61,7 @@ parser.add_option('--file', default=None, help='File containing HAPI data')
 parser.add_option('--url', default=None, help='URL with response of HAPI data')
 parser.add_option('--format', default='csv', help='Format of input')
 parser.add_option('--gzip', dest='gzip', action='store_true', help='Gzip output files')
-parser.add_option('--log', default='hapi-cache.log', help='Format of input')
+parser.add_option('--log', default='hapi-cache-write.log', help='Format of input')
 parser.add_option('--nostdout', dest='nostdout', action='store_true', help='Do not pass stdin to stdout')
 
 (options, args) = parser.parse_args()
@@ -233,7 +233,7 @@ else:
 for line in f:
 
 	l = l + 1
-	#flog.write(str(l) + " " + line.decode())
+	flog.write(str(l) + " " + line.decode())
 	line = line.decode('utf8')
 
 	if stdout:
@@ -246,6 +246,14 @@ for line in f:
 		daylast = firstline(linea)
 
 	if day[6:8] != daylast[6:8]:
+		from datetime import datetime, timedelta
+		a = datetime.strptime(daylast[0:8],'%Y%m%d')
+		b = datetime.strptime(day[0:8],'%Y%m%d')
+		flog.write("Gap = %d\n" % (b-a).days)
+		for d in range(1,(b-a).days):
+			daylastx = a + timedelta(days=d)
+			flog.write("Writing empty file for %d%02d%02d\n" % (daylastx.year, daylastx.month, daylastx.day))
+
 		if collecting:
 			if daylast != "00000000":
 				dump(Lines, daylast, columns)
