@@ -5,7 +5,7 @@ Using URL, dataset, parameters, start, stop, and format:
 
 1. does an exact match exist in the cache?  URL+dataset+parameters+start+stop.format
 2. does a parameter superset exist in the cache?  URL+dataset+*+start+stop.format, extract the subset
-3. does a time range superset exist in the cache?  URL+dataset+parameters+s&le;start+e&gt;stop.format, extract the subset
+3. does a time range superset exist in the cache?  URL+dataset+parameters+(s&le;start)+(e&gt;stop).format, extract the subset
 4. can I concatenate granules to cover the interval?
 5. can I take a parameter subset of the granules?
 
